@@ -1,0 +1,116 @@
+﻿@model PlayersVM
+
+@{
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<h1>
+    Armenian Football Players
+</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th onclick="run('Name')">Name</th>
+
+            <th onclick="getall">Surname</th>
+            <th onclick="getall">Number</th>
+            <th onclick="getall">IsPlaying</th>
+            <th onclick="getall">Club</th>
+            <th>Image</th>
+            <th>Actions</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td data-prop="name"><input type="text" /></td>
+            <td data-prop="surname"><input type="text" /></td>
+            <td data-prop="number"><input type="number" min="1" max="100" /></td>
+            <td data-prop="isPlaying"><input type="checkbox" /></td>
+            <td data-prop="club"><input type="text" /></td>
+            <td data-prop="image"><input type="file" name="image" accept="image/jpeg, image/png" /></td>
+            <td data-prop="action">
+                <button class="add-btn" onclick="addRow(this)"><i class="fa fa-plus"></i> Add</button>
+            </td>
+        </tr>
+        @foreach (var player in Model.Players)
+        {
+            <tr>
+                <td data-prop="name">@player.Name</td>
+                <td data-prop="surname">@player.Surname</td>
+                <td data-prop="number">@player.Number</td>
+                <td data-prop="isPlaying">@player.IsPlaying</td>
+                <td data-prop="club">@player.Club</td>
+                <td data-prop="image">@player.Image</td>
+                <td data-prop="action">
+                    <button class="edit-btn" onclick="editRow(this)"><i class="fa fa-pencil"></i> Edit</button>
+                    <button class="delete-btn"><i class="fa fa-trash"></i> Trash</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div><button class="save-btn" onclick="saveRow(this)" style="display:block"><i class="fa fa-save"></i> Save</button></div>
+
+<div><button class="newrow-btn" onclick="addNewRow(this)" style="display:block"><i class="fa fa-soccer-ball-o"></i> Add new row</button></div>
+
+
+
+<script>
+    function editRow(button) {
+        const tr = button.parentNode.parentNode;
+        const tds = tr.getElementsByTagName('td');
+        for (let i = 0; i < tds.length; i++) {
+            if (tds[i] == 'action') { continue; }
+            const td = tds[i];
+            const value = td.innerHTML;
+            td.innerHTML = `<input type="text" value="${value}">`;
+        }
+        button.style.display = 'none';
+        tr.querySelector('button:nth-child(2)').style.display = 'inline';
+    }
+
+    function saveRow(button) {
+        const tr = button.parentNode.parentNode;
+        const tds = tr.getElementsByTagName('td');
+        for (let i = 0; i < tds.length; i++) {
+            const td = tds[i];
+            const input = td.querySelector('input');
+            const value = input.value;
+            td.innerHTML = value;
+        }
+        button.style.display = 'none';
+        tr.querySelector('button:nth-child(1)').style.display = 'inline';
+    }
+
+    let orderObject = {
+        "sortOrder1": "@Model.OrderFilterPagination"
+    };
+
+
+    function run(obj) {
+        let orderObject = {
+            "SortString": obj
+        };
+        let post = JSON.stringify(orderObject)
+        const url = "/FootballPlayers/GetFilteredPage"
+        let xhr = new XMLHttpRequest()
+        xhr.open('POST', url, true)
+        xhr.setRequestHeader('Content-type', 'application/json; charset=UTF-8')
+        xhr.send(post);
+        xhr.onload = function (r) {
+            if (xhr.status === 200) {
+                console.log(r)
+                console.log("Post successfully created!")
+            }
+        }
+    }
+
+</script>
+
+
+
+
